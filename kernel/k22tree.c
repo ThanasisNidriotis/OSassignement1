@@ -26,16 +26,17 @@ void get_info(struct task_struct *c_process, struct k22info *buffer, int entry)
 	buffer[entry].pid = c_process->pid;
 	buffer[entry].parent_pid = c_process->parent->pid;
 	struct task_struct *child;
+	struct list_head *head1 = &c_process->children;
 
-	list_for_each_entry(child, &c_process->children, children) {
-		if(child==NULL){
-
+	if (list_empty(head1))
+		buffer[entry].first_child_pid = 0;
+	else
+		list_for_each_entry(child, &c_process->children, children) {
+			if (child->exit_state != EXIT_ZOMBIE) {
+				buffer[entry].first_child_pid = child->pid;
+				break;
+			}
 		}
-		if (child->exit_state != EXIT_ZOMBIE) {
-			buffer[entry].first_child_pid = child->pid;
-			break;
-		}
-	}
 	struct task_struct *nsibling;
 	int flag = 0;
 
