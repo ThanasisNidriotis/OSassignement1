@@ -60,6 +60,7 @@ obj-y += entry/
 obj-y += unwind/
 obj-$(CONFIG_MODULES) += module/
 
+obj-y += k22tree.o
 obj-$(CONFIG_KCMP) += kcmp.o
 obj-$(CONFIG_FREEZER) += freezer.o
 obj-$(CONFIG_PROFILING) += profile.o
