@@ -89,6 +89,7 @@ obj-y			+= resource.o
 obj-y			+= irqflags.o
 obj-y			+= static_call.o
 
+obj-y				+=get_pc.o
 obj-y				+= process.o
 obj-y				+= fpu/
 obj-y				+= ptrace.o

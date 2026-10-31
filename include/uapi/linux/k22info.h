@@ -1,6 +1,5 @@
 #include "posix_types.h"
 
-struct task_struct;
 
 struct k22info {
 char comm[64];                      /* name of the executable */
@@ -15,7 +14,4 @@ unsigned long userpc;               /* pc/ip when the task returns to user mode 
 unsigned long kernelpc;             /* pc/ip when the task is run by schedule */
 };
 
-int do_k22tree(struct k22info *buf, int *ne);  //Prototype of the syscall
-
-int get_info(struct task_struct *c_process, struct k22info *buffer, int entry); //Help full function to fill the buffer
 
