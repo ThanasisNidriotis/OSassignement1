@@ -135,13 +135,16 @@ struct task_struct *read_parent_sibling(struct task_struct *curr_p)
 
 int do_k22tree(struct k22info *buf, int *ne)
 {
-	if ( !buf || !ne || (*ne) <= 0)
+	if ( !buf || !ne )
 		return -EINVAL;
 
 	int num;
 
 	if (get_user(num, (int __user *)ne))
 		return -EFAULT;
+
+	if (num <= 0)
+		return -EINVAL;
 	/*Temporary buffer*/
 	struct k22info *tb = kmalloc(sizeof(struct k22info)*(num), GFP_KERNEL);
 
@@ -162,30 +165,32 @@ int do_k22tree(struct k22info *buf, int *ne)
 				/*If it returns 1,exceeded entries*/
 				if (get_info(curr,tb,entry,num)) {
 					read_unlock(&tasklist_lock);
-					return -2;
+					copy_to_user(buf,tb,sizeof(struct k22info )*(x));
+					kfree(tb);
+					return -EINVAL;
 				}
 				next = read_child(curr);
 			} while(next);
+
 			next = read_parent_sibling(curr);
 		} while(next != curr->parent);
-		do {
+		while(next == curr->parent && next != &init_task) {
 			curr = next;
 			next = read_parent_sibling(curr);
-		} while(next == curr->parent);
+		}
 		curr = next;
 		next = NULL;
 	} while (curr != &init_task);	//While we arent at init loop
 
 	read_unlock(&tasklist_lock);          //Unlock after reading the lock
 
-	if (copy_to_user(buf,tb,sizeof(struct k22info )*(num))) {
+	if (copy_to_user(buf,tb,sizeof(struct k22info )*(x))) {
 		kfree(tb);
 		return -EFAULT;
 	}
 
 	kfree(tb);
 	if (copy_to_user(ne,entry,sizeof(int))) {
-		kfree(tb);
 		return -EFAULT;
 	}
 	return 0;
